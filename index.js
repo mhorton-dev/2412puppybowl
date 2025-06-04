@@ -58,7 +58,7 @@ const callIndivTeam = async(id) => {
     console.log("Individual player url", url)
     const response = await fetch(url)
     let responseJSON = await respone.json()
-    state.selectedTeam = responseJSON
+    state.selectedTeam = responseJSON.data.teams
 }
 
 //invite new player
