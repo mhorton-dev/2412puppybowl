@@ -1,0 +1,16 @@
+#app {
+    display:grid;
+    grid-row: 1;
+    font-family: sans-serif;
+    min-height: 75vh;
+}
+
+.puppy-names {
+    display: grid;
+    width:50%;
+}
+
+.puppy-details{
+    display: grid;
+    width: 50%;
+}
