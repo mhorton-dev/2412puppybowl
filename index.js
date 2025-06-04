@@ -15,14 +15,14 @@ const appSection =document.querySelector("#app")
 
 const callPlayers = async() => {
     try {
-        const url = API + PLAYERS
-        const error = new Error("callPlayers error", { cause: err })
-        console.error(error)
+        const url = `${BASE}${COHORT}${PLAYERS}`
+        const response = await fetch(url)
+        const responseJSON = await response.json()
         console.log("response JSON", responseJSON)
-        state.players = await responseJSON.data
+        state.players = await responseJSON.data.players
         console.log("state.players from callPlayers", state.players)
     } catch(err) {
-        const error = new Error("callPlayers error", {cause: err})
+        error = new Error("callPlayers error", {cause: err})
         console.log(error)
     }
 }
@@ -92,35 +92,37 @@ const puppyNames = async () =>{
     nameSection.setAttribute("class", "puppy-names")
     const detailSection = document.createElement("section")
     detailSection.setAttribute("class", "puppy-details")
+    //if state.players is empty, repopulate it
+    if (state.players.length < 1)
+        callPlayers()
+    console.log(state.players)
+    state.players.forEach(puppy => {
+    detailSection.setAttribute("class", "puppy-details")
+    //if state.players is aray, go through forEach
+    console.log("state.players.forEach()", state.players)
+    
+        if (state.players.length > 0) {
+            const puppyPar = document.createElement("p")
+            const puppyImg = document.createElement("img")
+            puppyPar.setAttribute("id", puppy.id)
+            puppyImg.setAttribute("class", "puppy_name_ing")
+            puppyImg.setAttribute("alt", puppy.name)
+            puppyImg.setAttribute("src", puppy.imageUrl)
+            
+
+            puppyPar.addEventListener("click", async () =>{
+            state.selectedPlayer = puppy,
+            puppyDetails(puppy)
+            })
+
+
+            //populate and append detailSection
+            detailSection.appendChild(puppyImg)
+            detailSection.appendChild(puppyPar)
+            appSection.appendChild(detailSection)
+        }
+    })
 }
-
-if (!Array.isArray(state.players)){
-    callPlayers()
-}
-
-console.log("state.puppyNames", state.players)
-if (!Array.isArray(state.players))
-    callPlayers()
-const eachPup = async () => {state.players.forEach(puppy => {
-    if (Array.isArray(state.players)) {
-        const puppyPar = document.createElement("p")
-        const puppyImg = document.createElement("img")
-        puppyPar.setAttribute("id", puppy.id)
-        puppyImg.setAttribute("class", "puppy_name_ing")
-        puppyImg.setAttribute("alt", puppy.name)
-        puppyImg.setAttribute("src", puppy.imageUrl)
-        
-
-        puppyPar.addEventListener("click", async () =>{
-        state.selectedPlayer = puppy,
-        puppyDetails(puppy)
-
-        })
-
-        detailSection.appendChild(puppyImg)
-        detailSection.appendChild(puppyPar)
-    }})
-};
 
 
 //create and append puppy details.
@@ -143,16 +145,16 @@ const buttonRemove = document.createElement("button")
 buttonRemove.textContent = "Remove Player";
 buttonRemove.addEventListener("click", async () => {
     await deletePlayer(puppy.id)
-})}
+})
+detailSection.appendChild(buttonRemove)
+}
 
-window.onload = async function init() {
-    await Promise.all([callPlayers(), callTeams()]);
-    await puppyNames();
-};
 
 //init runs win page loads.
-window.onload = async function init() {
+async function init() {
     await callPlayers()
     await callTeams()
     await puppyNames()
 }
+
+init()
