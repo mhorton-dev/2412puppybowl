@@ -11,7 +11,7 @@ const state = {
     selectedPlayer: {},
     selectedTeam: []
 };
-const appSection =document.querySelector("#app")
+let appSection = document.querySelector("#app")
 
 const callPlayers = async() => {
     try {
@@ -43,7 +43,8 @@ const callTeams = async() => {
 }
 
 //fetch individual player
-const callIndivPlayer = async(id) => {
+const callIndivPlayer = async() => {
+    id = state.selectedPlayer.id
     const url = `${API}${PLAYERS}/${id}`
     console.log("Individual player url", url)
     const response = await fetch(url)
@@ -53,12 +54,9 @@ const callIndivPlayer = async(id) => {
 
 
 //fetch individual team
-const callIndivTeam = async(id) => {
-    const url = `${API}${TEAMS}/${id}`
-    console.log("Individual player url", url)
-    const response = await fetch(url)
-    let responseJSON = await respone.json()
-    state.selectedTeam = responseJSON.data.teams
+const callIndivTeam = async() => {
+    id = state.selectedPlayer.teamId
+    state.selectedTeam = state.teams[id]
 }
 
 //invite new player
@@ -90,22 +88,18 @@ const deletePlayer = async (id) => {
 const puppyNames = async () =>{
     const nameSection = document.createElement("section")
     nameSection.setAttribute("class", "puppy-names")
-    const detailSection = document.createElement("section")
-    detailSection.setAttribute("class", "puppy-details")
     //if state.players is empty, repopulate it
     if (state.players.length < 1)
         callPlayers()
-    console.log(state.players)
-    state.players.forEach(puppy => {
-    detailSection.setAttribute("class", "puppy-details")
-    //if state.players is aray, go through forEach
-    console.log("state.players.forEach()", state.players)
-    
+    state.players.forEach(puppy => {    
         if (state.players.length > 0) {
+            const puppySection = document.createElement("section")
+            puppySection.setAttribute("class", "puppy-name-item")
             const puppyPar = document.createElement("p")
             const puppyImg = document.createElement("img")
             puppyPar.setAttribute("id", puppy.id)
-            puppyImg.setAttribute("class", "puppy_name_ing")
+            puppyPar.setAttribute("class", "puppy_name_item")
+            puppyImg.setAttribute("class", "puppy_name_img")
             puppyImg.setAttribute("alt", puppy.name)
             puppyImg.setAttribute("src", puppy.imageUrl)
             
@@ -115,38 +109,51 @@ const puppyNames = async () =>{
             puppyDetails(puppy)
             })
 
+            puppyImg.addEventListener("click", async () =>{
+                state.selectedPlayer = puppy,
+                puppyDetails(puppy)
+            })
+
 
             //populate and append detailSection
-            detailSection.appendChild(puppyImg)
-            detailSection.appendChild(puppyPar)
-            appSection.appendChild(detailSection)
+            puppySection.appendChild(puppyImg)
+            puppyPar.innerText = puppy.name
+            puppySection.appendChild(puppyPar)
+            nameSection.appendChild(puppySection)
+            appSection = document.querySelector("#app")
+            appSection.appendChild(nameSection)
         }
     })
+        const buttonRemove = document.createElement("button")
+        buttonRemove.textContent = "Remove Player";
+        buttonRemove.addEventListener("click", async () => {
+            await deletePlayer(puppy.id)
+        })
+    nameSection.appendChild(buttonRemove)
 }
+
 
 
 //create and append puppy details.
 const puppyDetails = async (puppy) => {
-detailSection.querySelector(".puppy_details")
-const  puppyImg = document.createElement("img")
-puppyImg.setAttribute("class", "puppy_detail_img")
-puppyImg.setAttribute("src", puppy.imageUrl)
-puppyImg.setAttribute("alt", puppy.name)
-const puppyPar = document.createElement("p")
-puppyPar.innerHTML = `
-    <strong>Name</strong> ${puppy.name}<br>
-    <strong>ID</strong> ${puppy.id}<br>
-    <strong>status</strong> ${await callIndivTeam(puppy.teamid)}
-`
+    const detailSection = document.createElement("section")
+    detailSection.setAttribute("class", "puppy-details")
+    const  puppyImg = document.createElement("img")
+    puppyImg.setAttribute("class", "puppy_detail_img")
+    puppyImg.setAttribute("src", puppy.imageUrl)
+    puppyImg.setAttribute("alt", puppy.name)
+
+    const puppyPar = document.createElement("p")
+    puppyPar.innerHTML = `
+        <strong>Name</strong> ${state.selectedPlayer.name}<br>
+        <strong>ID</strong> ${state.selectedPlayer.id}<br>
+        <strong>status</strong> ${state.selectedPlayer.status}
+    `
 
 
-puppyPar.appendChild(puppyImg);
-const buttonRemove = document.createElement("button")
-buttonRemove.textContent = "Remove Player";
-buttonRemove.addEventListener("click", async () => {
-    await deletePlayer(puppy.id)
-})
-detailSection.appendChild(buttonRemove)
+    detailSection.appendChild(puppyImg)
+    detailSection.appendChild(puppyPar)
+    appSection.appendChild(detailSection)
 }
 
 
