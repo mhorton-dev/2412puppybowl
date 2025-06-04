@@ -12,6 +12,8 @@ const state = {
     selectedTeam: []
 };
 let appSection = document.querySelector("#app")
+let detailSection = document.createElement("section")
+const nameSection = document.createElement("section")
 
 const callPlayers = async() => {
     try {
@@ -86,13 +88,11 @@ const deletePlayer = async (id) => {
 //create and append puppy names main list elements
 
 const puppyNames = async () =>{
-    const nameSection = document.createElement("section")
-    nameSection.setAttribute("class", "puppy-names")
     //if state.players is empty, repopulate it
-    if (state.players.length < 1)
+    if (!Array.isArray(state.players))
         callPlayers()
-    state.players.forEach(puppy => {    
-        if (state.players.length > 0) {
+    else {
+        state.players.forEach(puppy => {    
             const puppySection = document.createElement("section")
             puppySection.setAttribute("class", "puppy-name-item")
             const puppyPar = document.createElement("p")
@@ -106,12 +106,12 @@ const puppyNames = async () =>{
 
             puppyPar.addEventListener("click", async () =>{
             state.selectedPlayer = puppy,
-            puppyDetails(puppy)
+            createPuppyDetails(puppy)
             })
 
             puppyImg.addEventListener("click", async () =>{
                 state.selectedPlayer = puppy,
-                puppyDetails(puppy)
+                createPuppyDetails(puppy)
             })
 
 
@@ -122,8 +122,8 @@ const puppyNames = async () =>{
             nameSection.appendChild(puppySection)
             appSection = document.querySelector("#app")
             appSection.appendChild(nameSection)
-        }
-    })
+        })
+    }
         const buttonRemove = document.createElement("button")
         buttonRemove.textContent = "Remove Player";
         buttonRemove.addEventListener("click", async () => {
@@ -132,12 +132,9 @@ const puppyNames = async () =>{
     nameSection.appendChild(buttonRemove)
 }
 
-
-
 //create and append puppy details.
-const puppyDetails = async (puppy) => {
-    const detailSection = document.createElement("section")
-    detailSection.setAttribute("class", "puppy-details")
+const createPuppyDetails = async (puppy) => {
+    console.log("createPuppyDetails() called")
     const  puppyImg = document.createElement("img")
     puppyImg.setAttribute("class", "puppy_detail_img")
     puppyImg.setAttribute("src", puppy.imageUrl)
@@ -151,8 +148,8 @@ const puppyDetails = async (puppy) => {
     `
 
 
-    detailSection.appendChild(puppyImg)
-    detailSection.appendChild(puppyPar)
+    detailSection.replaceChildren(puppyImg, puppyPar)
+    detailSection = appSection.removeChild(detailSection)
     appSection.appendChild(detailSection)
 }
 
@@ -161,6 +158,10 @@ const puppyDetails = async (puppy) => {
 async function init() {
     await callPlayers()
     await callTeams()
+    detailSection.setAttribute("class", "puppy-details")
+    nameSection.setAttribute("class", "puppy-names")
+    appSection.appendChild(detailSection)
+    appSection.insertBefore(nameSection, detailSection)
     await puppyNames()
 }
 
